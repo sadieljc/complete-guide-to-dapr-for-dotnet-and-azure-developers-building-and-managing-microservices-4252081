@@ -6,11 +6,8 @@ using WisdomPetMedicine.Hospital.Domain.Repositories;
 using WisdomPetMedicine.Hospital.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.ConfigureAppConfiguration(config =>
-{
-    var daprClient = new DaprClientBuilder().Build();
-    config.AddDaprSecretStore("wisdomsecretstore", daprClient);
-});
+var daprClient = new DaprClientBuilder().Build();
+builder.Configuration.AddDaprSecretStore("wisdomsecretstore", daprClient);
 
 // Add services to the container.
 builder.Services.AddHospitalDb(builder.Configuration);

@@ -6,13 +6,13 @@ spec:
   type: bindings.azure.storagequeues
   version: v1
   metadata:
-  - name: storageAccount
+  - name: accountName
     value: "wisdompetmed"
-  - name: storageAccessKey
+  - name: accountKey
     secretKeyRef:
       name: azurestorage
       key: azurestorage
-  - name: queue
+  - name: queueName
     value: "admittedqueue"
   - name: ttlInSeconds
     value: "60"
