@@ -1,0 +1,29 @@
+version: 1
+common:
+  resourcesPath: ../components
+apps:
+  - appID: pet
+    appDirPath: ./WisdomPetMedicine.Pet.Api
+    appPort: 5000
+    daprHTTPPort: 50000
+    command: ["dotnet","run","--urls=http://+:5000"]
+  - appID: rescue
+    appDirPath: ./WisdomPetMedicine.Rescue.Api
+    appPort: 5001
+    daprHTTPPort: 50001
+    command: ["dotnet","run","--urls=http://+:5001"]
+  - appID: hospital
+    appDirPath: ./WisdomPetMedicine.Hospital.Api
+    appPort: 5002
+    daprHTTPPort: 50002
+    command: ["dotnet","run","--urls=http://+:5002"]
+  - appID: rescuequery
+    appDirPath: ./WisdomPetMedicine.RescueQuery.Api
+    appPort: 5003
+    daprHTTPPort: 50003
+    command: ["dotnet","run","--urls=http://+:5003"]
+  - appID: petaggregator
+    appDirPath: ./WisdomPetMedicine.PetAggregator.Api
+    appPort: 5500
+    daprHTTPPort: 55000
+    command: ["dotnet","run","--urls=http://+:5500"]
