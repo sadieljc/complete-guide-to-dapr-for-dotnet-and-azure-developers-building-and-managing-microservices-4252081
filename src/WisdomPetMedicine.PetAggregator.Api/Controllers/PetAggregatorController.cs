@@ -47,7 +47,7 @@ public class PetAggregatorController : ControllerBase
         try
         {
             var configuration = await daprClient.GetConfiguration("wisdomconfigstore", new List<string>() { "LastQueryDurationInSeconds" });
-            _ = int.TryParse(configuration.Items[0].Value, out int lastQueryDurationInSeconds);
+            _ = int.TryParse(configuration.Items.First().Value.Value, out int lastQueryDurationInSeconds);
             return lastQueryDurationInSeconds;
         }
         catch (Exception)

@@ -25,10 +25,10 @@ public class PatientsProjector
     [Function("PatientsProjector")]
     public async Task Run([CosmosDBTrigger(
             databaseName: "WisdomPetMedicine",
-            collectionName: "Patients",
-            ConnectionStringSetting = "CosmosDbConnectionString",
-            CreateLeaseCollectionIfNotExists = true,
-            LeaseCollectionName = "leases")] IReadOnlyList<CosmosEventData> input, FunctionContext context)
+            containerName: "Patients",
+            Connection = "CosmosDbConnectionString",
+            CreateLeaseContainerIfNotExists = true,
+            LeaseContainerName = "leases")] IReadOnlyList<CosmosEventData> input, FunctionContext context)
     {
         var logger = context.GetLogger("PatientsProjector");
         if (input == null || !input.Any())
