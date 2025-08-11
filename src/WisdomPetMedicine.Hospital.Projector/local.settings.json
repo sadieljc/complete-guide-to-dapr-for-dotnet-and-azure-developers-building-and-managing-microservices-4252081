@@ -1,0 +1,12 @@
+{
+    "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "CosmosDbConnectionString": "AccountEndpoint=https://advancedmicroservices.documents.azure.com:443/;AccountKey=KK0ovgh3sm5P12tSviUs6xNYMKcjixlivBjUTbZzl0ZLD3ViJRo9DkFRblZ5hcTA5xpGJ2ve2XFCACDbSbLduA==;",
+    "azurecosmosdb": "AccountEndpoint=https://advancedmicroservices.documents.azure.com:443/;AccountKey=KK0ovgh3sm5P12tSviUs6xNYMKcjixlivBjUTbZzl0ZLD3ViJRo9DkFRblZ5hcTA5xpGJ2ve2XFCACDbSbLduA==;"    
+  },
+  "ConnectionStrings": {
+    "Hospital": "Data Source=localhost\\sqlexpress;Initial Catalog=Hospital;Integrated Security=true;TrustServerCertificate=True"
+  }
+}
