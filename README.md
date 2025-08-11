@@ -1,5 +1,5 @@
-# Azure Dapr for .NET Developers Part 1
-This is the repository for the LinkedIn Learning course Azure Dapr for .NET Developers Part 1. The full course is available from [LinkedIn Learning][lil-course-url].
+# Complete Guide to Dapr for .NET and Azure Developers: Building and Managing Microservices
+This is the repository for the LinkedIn Learning course Complete Guide to Dapr for .NET and Azure Developers: Building and Managing Microservices. The full course is available from [LinkedIn Learning][lil-course-url].
 
 ![Azure Dapr for .NET Developers Part 1][lil-thumbnail-url] 
 
