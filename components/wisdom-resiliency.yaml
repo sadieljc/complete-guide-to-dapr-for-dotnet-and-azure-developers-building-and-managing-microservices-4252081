@@ -5,11 +5,16 @@ metadata:
 spec:
   policies:
     retries:
-      wpm-service:
+      wpm-service-retry:
         policy: exponential
         maxInterval: 10s
         maxRetries: -1
+    timeouts:
+      wpm-service-timeout: 10s
+
   targets:
     apps:
       pet:
-        retry: wpm-service
+        retry: wpm-service-retry
+      rescuequery:
+        timeout: wpm-service-timeout

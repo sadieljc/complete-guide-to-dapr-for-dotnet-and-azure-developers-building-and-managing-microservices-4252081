@@ -18,6 +18,8 @@ public class RescueQueryController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get()
     {
+        Thread.Sleep(8000);
+
         string sql = @"SELECT 
                         ram.Id, 
                         ram.Name,

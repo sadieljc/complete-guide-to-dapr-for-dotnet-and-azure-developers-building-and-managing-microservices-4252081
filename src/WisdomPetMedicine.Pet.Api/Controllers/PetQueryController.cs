@@ -12,7 +12,7 @@ public class PetQueryController(IConfiguration configuration,
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        if (Random.Shared.Next(1, 10) <= 7)
+        if (Random.Shared.Next(1, 10) <= 3)
         {
             logger.LogError("There's something wrong.");
             return StatusCode(500);
