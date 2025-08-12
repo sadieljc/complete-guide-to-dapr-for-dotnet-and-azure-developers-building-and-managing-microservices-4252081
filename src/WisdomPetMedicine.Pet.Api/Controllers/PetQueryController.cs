@@ -6,18 +6,18 @@ namespace WisdomPetMedicine.Pet.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class PetQueryController : ControllerBase
+public class PetQueryController(IConfiguration configuration,
+                                ILogger<PetQueryController> logger) : ControllerBase
 {
-    private readonly IConfiguration configuration;
-
-    public PetQueryController(IConfiguration configuration)
-    {
-        this.configuration = configuration;
-    }
-
     [HttpGet]
     public async Task<IActionResult> Get()
     {
+        if (Random.Shared.Next(1, 10) <= 7)
+        {
+            logger.LogError("There's something wrong.");
+            return StatusCode(500);
+        }
+
         string query = @"SELECT p.Id, p.Name_Value as Name,
                             p.Breed_Value as Breed,
                             Sex = 

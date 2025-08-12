@@ -1,0 +1,15 @@
+apiVersion: dapr.io/v1alpha1
+kind: Resiliency
+metadata:
+  name: wisdomresiliency
+spec:
+  policies:
+    retries:
+      wpm-service:
+        policy: exponential
+        maxInterval: 10s
+        maxRetries: -1
+  targets:
+    apps:
+      pet:
+        retry: wpm-service
