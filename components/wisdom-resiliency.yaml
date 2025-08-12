@@ -11,6 +11,10 @@ spec:
         maxRetries: -1
     timeouts:
       wpm-service-timeout: 10s
+    circuitBreakers:
+      wpm-service-cb:
+        interval: 5s
+        trip: consecutiveFailures > 10
 
   targets:
     apps:
@@ -18,3 +22,5 @@ spec:
         retry: wpm-service-retry
       rescuequery:
         timeout: wpm-service-timeout
+      hospital:
+        circuitBreaker: wpm-service-cb

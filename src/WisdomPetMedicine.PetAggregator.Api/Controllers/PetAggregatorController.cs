@@ -5,17 +5,9 @@ using WisdomPetMedicine.PetAggregator.Api.Models;
 namespace WisdomPetMedicine.PetAggregator.Api.Controllers;
 [ApiController]
 [Route("[controller]")]
-public class PetAggregatorController : ControllerBase
+public class PetAggregatorController(DaprClient daprClient,
+                                     ILogger<PetAggregatorController> logger) : ControllerBase
 {
-    private readonly DaprClient daprClient;
-    private readonly ILogger<PetAggregatorController> logger;
-
-    public PetAggregatorController(DaprClient daprClient, ILogger<PetAggregatorController> logger)
-    {
-        this.daprClient = daprClient;
-        this.logger = logger;
-    }
-
     [HttpGet]
     public async Task<IActionResult> Get()
     {
@@ -58,14 +50,21 @@ public class PetAggregatorController : ControllerBase
 
     private async Task<IEnumerable<dynamic>> QueryPets()
     {
-        var pets = await daprClient.InvokeMethodAsync<IEnumerable<PetModel>>(HttpMethod.Get, "pet", "petquery");
+        IEnumerable<PatientModel> patients = [];
 
+        var pets = await daprClient.InvokeMethodAsync<IEnumerable<PetModel>>(HttpMethod.Get, "pet", "petquery");
         var rescues = await daprClient.InvokeMethodAsync<IEnumerable<RescueModel>>(HttpMethod.Get, "rescuequery", "rescuequery");
 
-        var patients = await daprClient.InvokeMethodAsync<IEnumerable<PatientModel>>(HttpMethod.Get, "hospital", "patientquery");
+        try
+        {
+            patients = await daprClient.InvokeMethodAsync<IEnumerable<PatientModel>>(HttpMethod.Get, "hospital", "patientquery");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to retrieve the patients.");
+        }
 
         var result = from pet in pets
-                     join patient in patients on pet.Id equals patient.Id
                      join rescue in rescues on pet.Id equals rescue.Id
                      select new
                      {
@@ -76,12 +75,14 @@ public class PetAggregatorController : ControllerBase
                          pet.Color,
                          pet.DateOfBirth,
                          pet.Species,
-                         Hospital = new
-                         {
-                             patient.BloodType,
-                             patient.Weight,
-                             patient.Status,
-                         },
+                         Hospital = patients.FirstOrDefault(p => p.Id == pet.Id) is var patient 
+                                && patient != null ? 
+                             new
+                             {
+                                 patient.BloodType,
+                                 patient.Weight,
+                                 patient.Status,
+                             } : null,
                          Rescue = new
                          {
                              rescue.AdopterId,
@@ -89,6 +90,7 @@ public class PetAggregatorController : ControllerBase
                              rescue.AdoptionStatus
                          }
                      };
+ 
         return result;
     }
 }

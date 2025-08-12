@@ -1,23 +1,21 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 
 namespace WisdomPetMedicine.Hospital.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class PatientQueryController : ControllerBase
+public class PatientQueryController(IConfiguration configuration,
+                                    ILogger<PatientQueryController> logger) : ControllerBase
 {
-    private readonly IConfiguration configuration;
-
-    public PatientQueryController(IConfiguration configuration)
-    {
-        this.configuration = configuration;
-    }
-
     [HttpGet]
     public async Task<IActionResult> Get()
     {
+        logger.LogError("There's something wrong in the hospital service.");
+        return StatusCode(500);
+
         string sql = @"SELECT pm.Id,
                             pm.Name,
                             pm.Breed,
