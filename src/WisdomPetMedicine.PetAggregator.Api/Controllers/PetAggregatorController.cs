@@ -50,9 +50,18 @@ public class PetAggregatorController(DaprClient daprClient,
 
     private async Task<IEnumerable<dynamic>> QueryPets()
     {
+        IEnumerable<PetModel> pets = [];
         IEnumerable<PatientModel> patients = [];
 
-        var pets = await daprClient.InvokeMethodAsync<IEnumerable<PetModel>>(HttpMethod.Get, "pet", "petquery");
+        try
+        {
+            pets = await daprClient.InvokeMethodAsync<IEnumerable<PetModel>>(HttpMethod.Get, "pet", "petquery");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to retrieve the pets.");
+        }
+        
         var rescues = await daprClient.InvokeMethodAsync<IEnumerable<RescueModel>>(HttpMethod.Get, "rescuequery", "rescuequery");
 
         try
@@ -64,33 +73,33 @@ public class PetAggregatorController(DaprClient daprClient,
             logger.LogError(ex, "Failed to retrieve the patients.");
         }
 
-        var result = from pet in pets
-                     join rescue in rescues on pet.Id equals rescue.Id
-                     select new
-                     {
-                         pet.Id,
-                         pet.Name,
-                         pet.Breed,
-                         pet.Sex,
-                         pet.Color,
-                         pet.DateOfBirth,
-                         pet.Species,
-                         Hospital = patients.FirstOrDefault(p => p.Id == pet.Id) is var patient 
-                                && patient != null ? 
-                             new
-                             {
-                                 patient.BloodType,
-                                 patient.Weight,
-                                 patient.Status,
-                             } : null,
-                         Rescue = new
-                         {
-                             rescue.AdopterId,
-                             rescue.AdopterName,
-                             rescue.AdoptionStatus
-                         }
-                     };
- 
+        var result = from pet in pets.Where(p => p != null)
+                      join rescue in rescues on pet.Id equals rescue.Id
+                      select new
+                      {
+                          pet.Id,
+                          pet.Name,
+                          pet.Breed,
+                          pet.Sex,
+                          pet.Color,
+                          pet.DateOfBirth,
+                          pet.Species,
+                          Hospital = patients.FirstOrDefault(p => p.Id == pet.Id) is var patient
+                                 && patient != null ?
+                              new
+                              {
+                                  patient.BloodType,
+                                  patient.Weight,
+                                  patient.Status,
+                              } : null,
+                          Rescue = new
+                          {
+                              rescue.AdopterId,
+                              rescue.AdopterName,
+                              rescue.AdoptionStatus
+                          }
+                      };
+
         return result;
     }
 }

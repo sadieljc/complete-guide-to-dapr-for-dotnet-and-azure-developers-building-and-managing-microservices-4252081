@@ -7,6 +7,8 @@ apps:
     appPort: 5000
     daprHTTPPort: 50000
     command: ["dotnet","run","--urls=http://+:5000"]
+    enableAppHealthCheck: true
+    appHealthCheckPath: /health
   - appID: rescue
     appDirPath: ./WisdomPetMedicine.Rescue.Api
     appPort: 5001

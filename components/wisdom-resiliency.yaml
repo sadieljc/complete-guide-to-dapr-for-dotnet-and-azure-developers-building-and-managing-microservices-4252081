@@ -23,7 +23,7 @@ spec:
   targets:
     apps:
       pet:
-        retry: wpm-service-retry-forever
+        retry: wpm-service-retry
       rescuequery:
         timeout: wpm-service-timeout
       hospital:
