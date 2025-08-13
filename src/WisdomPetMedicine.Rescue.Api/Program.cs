@@ -45,4 +45,17 @@ var daprJobsClient = scope.ServiceProvider.GetRequiredService<DaprJobsClient>();
 var schedule = DaprJobSchedule.FromExpression("@every 15s");
 await daprJobsClient.ScheduleJobAsync("digest", schedule);
 
+app.MapDaprScheduledJobHandler(async (string jobName,
+                    ReadOnlyMemory<byte> jobPayload) => {
+                        switch (jobName)
+                        {
+                            case "digest":
+                                
+                                //Logic to email the digest goes here.
+                                await Task.Delay(5);
+                                break;
+                        }
+                    });
+
+
 app.Run();
