@@ -16,7 +16,12 @@ public class EmailApplicationService(RescueDbContext dbContext,
         
         foreach (var pet in petsForAdoption)
         {
-            var message = await conversationService.Ask(pet.Name, pet.Breed);
+            var message = await conversationService.Ask(pet.Name, 
+                pet.Breed,
+                pet.Sex,
+                pet.Color,
+                pet.Species,
+                pet.DateOfBirth);
             foreach (var adopter in adopters)
             {
                 var name = await Decrypt(adopter.Name.Value);
