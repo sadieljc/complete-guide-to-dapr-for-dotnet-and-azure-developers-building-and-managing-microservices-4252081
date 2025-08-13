@@ -1,0 +1,15 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: wisdomazurekeyvault
+spec:
+  type: crypto.azure.keyvault
+  metadata:
+  - name: vaultName
+    value: wisdompetmed
+  - name: azureTenantId
+    value: "63368336-e789-4b48-a0ba-7c956298e199"
+  - name: azureClientId
+    value: "51dca889-7051-4cfd-87ab-0c895a7d15b5"
+  - name: azureClientSecret
+    value: ".Jm8Q~.hgJUhgTBLGF1n2EX.CulzKT_dD2MvbdrR"
