@@ -6,6 +6,7 @@ namespace WisdomPetMedicine.Rescue.Api.ApplicationServices;
 
 public class EmailApplicationService(RescueDbContext dbContext,
                                      IEmailService emailService,
+                                     IConversationService conversationService,
                                      DaprClient daprClient)
 {
     public async Task SendDigest()
@@ -13,10 +14,14 @@ public class EmailApplicationService(RescueDbContext dbContext,
         var adopters = await dbContext.Adopters.ToListAsync();
         var petsForAdoption = await dbContext.RescuedAnimalsMetadata.ToListAsync();
         
-        foreach (var adopter in adopters)
+        foreach (var pet in petsForAdoption)
         {
-            var name = await Decrypt(adopter.Name.Value);
-            await emailService.SendEmail(name, $"We have {petsForAdoption.Count} pet(s) for adoption!");
+            var message = await conversationService.Ask(pet.Name, pet.Breed);
+            foreach (var adopter in adopters)
+            {
+                var name = await Decrypt(adopter.Name.Value);
+                await emailService.SendEmail(name, message);
+            }
         }
     }
 

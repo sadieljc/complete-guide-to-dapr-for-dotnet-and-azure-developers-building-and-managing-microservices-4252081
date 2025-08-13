@@ -1,3 +1,4 @@
+using Dapr.AI.Conversation.Extensions;
 using Dapr.Client;
 using Dapr.Extensions.Configuration;
 using Dapr.Jobs;
@@ -18,9 +19,11 @@ builder.Services.AddScoped<AdopterApplicationService>();
 builder.Services.AddScoped<EmailApplicationService>();
 builder.Services.AddScoped<IRescueRepository, RescueRepository>();
 builder.Services.AddScoped<IEmailService, DigestEmailService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddControllers()
                 .AddDapr();
 builder.Services.AddDaprJobsClient();
+builder.Services.AddDaprConversationClient();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
