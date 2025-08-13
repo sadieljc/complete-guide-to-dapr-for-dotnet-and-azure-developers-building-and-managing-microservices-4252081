@@ -1,0 +1,17 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: wisdomconversation
+spec:
+  type: conversation.openai
+  metadata:
+  - name: key
+    secretKeyRef:
+      name: openai
+      key: openai
+  - name: model
+    value: gpt-4.1
+  - name: cacheTTL
+    value: 10m
+auth:
+  secretStore: wisdomsecretstore
