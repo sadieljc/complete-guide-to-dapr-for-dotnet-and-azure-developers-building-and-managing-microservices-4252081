@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Dapr.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
@@ -6,13 +7,26 @@ namespace WisdomPetMedicine.RescueQuery.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class RescueQueryController : ControllerBase
+public class RescueQueryController(IConfiguration configuration, 
+                                   DaprClient daprClient) : ControllerBase
 {
-    private readonly IConfiguration configuration;
-
-    public RescueQueryController(IConfiguration configuration)
+    [HttpGet("adopters")]
+    public async Task<IActionResult> GetAdopters()
     {
-        this.configuration = configuration;
+        var sql = "SELECT * FROM Adopters";
+        using var connection = new SqlConnection(configuration.GetValue<string>("Rescue"));
+        var adopters = (await connection.QueryAsync(sql)).ToList();
+        foreach (IDictionary<string, object> item in adopters)
+        {
+            var encryptedName = item["Name_Value"].ToString();
+            var nameBytes = Convert.FromBase64String(encryptedName);
+            var decryptedNameBytes = await daprClient.DecryptAsync("wisdomazurekeyvault",
+                nameBytes, "wpmkey");
+            var decryptedName = System.Text.Encoding.UTF8.GetString(decryptedNameBytes.ToArray());
+            item["Name_Value"] = decryptedName;
+        };
+        
+        return Ok(adopters);
     }
 
     [HttpGet]

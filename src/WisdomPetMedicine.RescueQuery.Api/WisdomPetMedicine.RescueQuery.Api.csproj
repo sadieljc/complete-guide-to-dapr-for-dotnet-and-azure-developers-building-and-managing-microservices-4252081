@@ -4,10 +4,12 @@
     <TargetFramework>net9.0</TargetFramework>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<Nullable>enable</Nullable>
+	<NoWarn>CS0618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
+	<PackageReference Include="Dapr.AspNetCore" Version="1.15.4" />
     <PackageReference Include="Dapr.Extensions.Configuration" Version="1.15.4" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
