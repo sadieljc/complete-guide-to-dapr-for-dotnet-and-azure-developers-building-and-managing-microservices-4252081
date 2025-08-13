@@ -15,7 +15,9 @@ builder.Configuration.AddDaprSecretStore("wisdomsecretstore", daprClient);
 // Add services to the container.
 builder.Services.AddRescueDb(builder.Configuration);
 builder.Services.AddScoped<AdopterApplicationService>();
+builder.Services.AddScoped<EmailApplicationService>();
 builder.Services.AddScoped<IRescueRepository, RescueRepository>();
+builder.Services.AddScoped<IEmailService, DigestEmailService>();
 builder.Services.AddControllers()
                 .AddDapr();
 builder.Services.AddDaprJobsClient();
@@ -46,16 +48,13 @@ var schedule = DaprJobSchedule.FromExpression("@every 15s");
 await daprJobsClient.ScheduleJobAsync("digest", schedule);
 
 app.MapDaprScheduledJobHandler(async (string jobName,
-                    ReadOnlyMemory<byte> jobPayload) => {
+                    ReadOnlyMemory<byte> jobPayload,
+                    EmailApplicationService emailApplicationService) => {
                         switch (jobName)
                         {
                             case "digest":
-                                
-                                //Logic to email the digest goes here.
-                                await Task.Delay(5);
+                                await emailApplicationService.SendDigest();
                                 break;
                         }
                     });
-
-
 app.Run();
