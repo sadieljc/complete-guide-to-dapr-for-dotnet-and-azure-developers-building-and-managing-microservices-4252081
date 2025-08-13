@@ -23,6 +23,7 @@ public class IntegrationEventsController : ControllerBase
     }
 
     [Topic("pubsub", "pet-flagged-for-adoption")]
+    [HttpPost]
     public async Task<IActionResult> OnPetFlaggedForAdoption(PetFlaggedForAdoptionIntegrationEvent theEvent)
     {
         using var scope = serviceScopeFactory.CreateScope();

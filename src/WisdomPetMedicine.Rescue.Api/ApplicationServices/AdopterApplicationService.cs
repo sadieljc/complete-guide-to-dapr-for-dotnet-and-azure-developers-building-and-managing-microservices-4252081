@@ -1,4 +1,7 @@
-﻿using WisdomPetMedicine.Rescue.Api.Commands;
+﻿using Dapr.Client;
+using System.Collections;
+using System.Text;
+using WisdomPetMedicine.Rescue.Api.Commands;
 using WisdomPetMedicine.Rescue.Domain.Entities;
 using WisdomPetMedicine.Rescue.Domain.Events;
 using WisdomPetMedicine.Rescue.Domain.Repositories;
@@ -9,11 +12,14 @@ namespace WisdomPetMedicine.Rescue.Api.ApplicationServices;
 public class AdopterApplicationService
 {
     private readonly IRescueRepository rescueRepository;
+    private readonly DaprClient daprClient;
 
     public AdopterApplicationService(IRescueRepository rescuedAnimalRepository,
-                                     IServiceScopeFactory serviceScopeFactory)
+                                     IServiceScopeFactory serviceScopeFactory,
+                                     DaprClient daprClient)
     {
         this.rescueRepository = rescuedAnimalRepository;
+        this.daprClient = daprClient;
 
         DomainEvents.AdoptionRequestCreated.Register(async e =>
         {
@@ -28,7 +34,16 @@ public class AdopterApplicationService
     public async Task HandleCommandAsync(CreateAdopterCommand command)
     {
         var adopter = new Adopter(AdopterId.Create(command.Id));
-        adopter.SetName(AdopterName.Create(command.Name));
+
+        ReadOnlyMemory<byte> textBytes = Encoding.UTF8.GetBytes(command.Name)
+                                                      .AsMemory();
+        var options = new EncryptionOptions(KeyWrapAlgorithm.Rsa);
+        var result = await daprClient.EncryptAsync("wisdomazurekeyvault", 
+            textBytes, "wpmkey", options);
+
+        var encryptedName = Convert.ToBase64String(result.ToArray());
+
+        adopter.SetName(AdopterName.Create(encryptedName));
         adopter.SetAddress(AdopterAddress.Create(command.Address.Street,
                                                  command.Address.Number,
                                                  command.Address.City,
@@ -38,6 +53,7 @@ public class AdopterApplicationService
                                                              command.Questionnaire.DoYouRent,
                                                              command.Questionnaire.HasFencedYard,
                                                              command.Questionnaire.HasChildren));
+        adopter.SetPhoneNumber(AdopterPhoneNumber.Create(command.PhoneNumber));
         await rescueRepository.AddAdopterAsync(adopter);
     }
 

@@ -37,5 +37,5 @@ app.UseAuthorization();
 app.UseCloudEvents();
 app.MapSubscribeHandler();
 app.MapControllers();
-app.UseHealthChecks("/health");
+//app.UseHealthChecks("/health");
 app.Run();

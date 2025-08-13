@@ -35,5 +35,5 @@ app.EnsurePetDbIsCreated();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-app.UseHealthChecks("/health");
+//app.UseHealthChecks("/health");
 app.Run();

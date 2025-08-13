@@ -21,10 +21,5 @@ public record AdopterName
         {
             throw new ArgumentNullException("Name must not be null");
         }
-
-        if (value.Length > 50)
-        {
-            throw new ArgumentOutOfRangeException(nameof(value), "Name must not be longer than 50 characters");
-        }
     }
 }
