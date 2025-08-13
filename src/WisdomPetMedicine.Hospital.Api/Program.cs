@@ -2,6 +2,7 @@ using Dapr.Client;
 using Dapr.Extensions.Configuration;
 using WisdomPetMedicine.Hospital.Api.ApplicationServices;
 using WisdomPetMedicine.Hospital.Api.Extensions;
+using WisdomPetMedicine.Hospital.Api.Infrastructure;
 using WisdomPetMedicine.Hospital.Domain.Repositories;
 using WisdomPetMedicine.Hospital.Infrastructure;
 
@@ -18,6 +19,8 @@ builder.Services.AddControllers()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks()
+                .AddDbContextCheck<HospitalDbContext>();
 
 var app = builder.Build();
 
@@ -34,4 +37,5 @@ app.UseAuthorization();
 app.UseCloudEvents();
 app.MapSubscribeHandler();
 app.MapControllers();
+app.UseHealthChecks("/health");
 app.Run();

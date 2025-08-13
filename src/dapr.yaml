@@ -19,6 +19,8 @@ apps:
     appPort: 5002
     daprHTTPPort: 50002
     command: ["dotnet","run","--urls=http://+:5002"]
+    enableAppHealthCheck: true
+    appHealthCheckPath: /health
   - appID: rescuequery
     appDirPath: ./WisdomPetMedicine.RescueQuery.Api
     appPort: 5003
