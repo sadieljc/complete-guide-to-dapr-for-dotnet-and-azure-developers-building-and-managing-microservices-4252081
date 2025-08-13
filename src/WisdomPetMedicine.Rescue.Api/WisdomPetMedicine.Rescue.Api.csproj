@@ -10,6 +10,7 @@
   <ItemGroup>
 	<PackageReference Include="Dapr.AspNetCore" Version="1.15.4" />
 	<PackageReference Include="Dapr.Extensions.Configuration" Version="1.15.4" />
+	<PackageReference Include="Dapr.Jobs" Version="1.15.4" />
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />

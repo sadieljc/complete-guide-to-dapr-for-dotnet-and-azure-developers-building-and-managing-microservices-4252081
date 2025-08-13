@@ -1,5 +1,8 @@
 using Dapr.Client;
 using Dapr.Extensions.Configuration;
+using Dapr.Jobs;
+using Dapr.Jobs.Extensions;
+using Dapr.Jobs.Models;
 using WisdomPetMedicine.Rescue.Api.ApplicationServices;
 using WisdomPetMedicine.Rescue.Api.Extensions;
 using WisdomPetMedicine.Rescue.Api.Infrastructure;
@@ -15,6 +18,7 @@ builder.Services.AddScoped<AdopterApplicationService>();
 builder.Services.AddScoped<IRescueRepository, RescueRepository>();
 builder.Services.AddControllers()
                 .AddDapr();
+builder.Services.AddDaprJobsClient();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -34,5 +38,11 @@ app.UseAuthorization();
 app.UseCloudEvents();
 app.MapSubscribeHandler();
 app.MapControllers();
+
+await using var scope = app.Services.CreateAsyncScope();
+var daprJobsClient = scope.ServiceProvider.GetRequiredService<DaprJobsClient>();
+
+var schedule = DaprJobSchedule.FromExpression("@every 15s");
+await daprJobsClient.ScheduleJobAsync("digest", schedule);
 
 app.Run();
