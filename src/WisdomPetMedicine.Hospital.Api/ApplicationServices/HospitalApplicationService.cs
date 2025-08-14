@@ -69,13 +69,6 @@ public class HospitalApplicationService(IPatientAggregateStore patientAggregateS
         logger.LogInformation(workflowOutput!.Admitted ?
                 "Patient was admitted!" :
                 $"Patient was not admitted because: {workflowOutput!.Reason}");
-
-        /*var patient = await patientAggregateStore.LoadAsync(PatientId.Create(command.Id));
-        patient.AdmitPatient();
-        await patientAggregateStore.SaveAsync(patient);
-
-        var message = $"Patient {patient.Id} admitted";
-        await daprClient.InvokeBindingAsync("petoutputbinding", "create", message);*/
     }
 
     public async Task HandleAsync(DischargePatientCommand command)
@@ -102,7 +95,8 @@ public class PatientAdmissionWorkflow : Workflow<Guid, PatientAdmissionResult>
 
         if (isRoomAvailable)
         {
-            return new PatientAdmissionResult(true, null);
+            var admitted = await context.CallActivityAsync<PatientAdmissionResult>(nameof(AdmitPatientActivity), input);
+            return admitted;
         }
         else
         {
@@ -118,5 +112,32 @@ public class VerifyRoomAvailabilityActivity(ILogger<VerifyRoomAvailabilityActivi
         logger.LogInformation("Verifying if a room is available...");
         await Task.Delay(3000);
         return Random.Shared.Next(1, 10) <= 7;
+    }
+}
+
+public class AdmitPatientActivity(IPatientAggregateStore patientAggregateStore,
+                                  DaprClient daprClient,
+                                  ILogger<AdmitPatientActivity> logger) : WorkflowActivity<Guid, PatientAdmissionResult>
+{
+    public override async Task<PatientAdmissionResult> RunAsync(WorkflowActivityContext context, Guid input)
+    {
+        try
+        {
+            logger.LogInformation("Admitting the patient...");
+
+            var patient = await patientAggregateStore.LoadAsync(PatientId.Create(input));
+            patient.AdmitPatient(); //Still uses DDD's invariants
+            await patientAggregateStore.SaveAsync(patient);
+
+            var message = $"Patient {patient.Id} admitted";
+            await daprClient.InvokeBindingAsync("petoutputbinding", "create", message);
+            
+            return new PatientAdmissionResult(true, null);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, ex.Message);
+            return new PatientAdmissionResult(false, ex.Message);
+        }
     }
 }
