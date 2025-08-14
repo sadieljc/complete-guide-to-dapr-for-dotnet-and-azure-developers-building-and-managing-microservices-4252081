@@ -10,6 +10,7 @@ namespace WisdomPetMedicine.Hospital.Api.ApplicationServices;
 
 public class HospitalApplicationService(IPatientAggregateStore patientAggregateStore,
                                         DaprClient daprClient,
+                                        DaprWorkflowClient daprWorkflowClient,
                                         ILogger<HospitalApplicationService> logger)
 {
     public async Task HandleAsync(SetWeightCommand command)
@@ -41,12 +42,40 @@ public class HospitalApplicationService(IPatientAggregateStore patientAggregateS
 
     public async Task HandleAsync(AdmitPatientCommand command)
     {
-        var patient = await patientAggregateStore.LoadAsync(PatientId.Create(command.Id));
+        var instanceId = Activity.Current!.Id!.ToString();
+
+        await daprWorkflowClient.ScheduleNewWorkflowAsync(
+            name: nameof(PatientAdmissionWorkflow),
+            instanceId: instanceId,
+            input: command.Id);
+
+        var workflowState = await daprWorkflowClient.WaitForWorkflowStartAsync(instanceId);
+
+        logger.LogInformation($"""
+            The workflow has started. The status is: 
+            {Enum.GetName(typeof(WorkflowRuntimeStatus), workflowState.RuntimeStatus)}
+            """);
+
+        workflowState = await daprWorkflowClient.WaitForWorkflowCompletionAsync(
+            instanceId: instanceId);
+
+        logger.LogInformation($"""
+            The workflow has finished. The status is: 
+            {Enum.GetName(typeof(WorkflowRuntimeStatus), workflowState.RuntimeStatus)}
+            """);
+
+        var workflowOutput = workflowState.ReadOutputAs<PatientAdmissionResult>();
+
+        logger.LogInformation(workflowOutput!.Admitted ?
+                "Patient was admitted!" :
+                $"Patient was not admitted because: {workflowOutput!.Reason}");
+
+        /*var patient = await patientAggregateStore.LoadAsync(PatientId.Create(command.Id));
         patient.AdmitPatient();
         await patientAggregateStore.SaveAsync(patient);
 
         var message = $"Patient {patient.Id} admitted";
-        await daprClient.InvokeBindingAsync("petoutputbinding", "create", message);
+        await daprClient.InvokeBindingAsync("petoutputbinding", "create", message);*/
     }
 
     public async Task HandleAsync(DischargePatientCommand command)
