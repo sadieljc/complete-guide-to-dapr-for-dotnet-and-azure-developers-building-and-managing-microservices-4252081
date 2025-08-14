@@ -1,4 +1,5 @@
 ﻿using Dapr.Client;
+using Dapr.Workflow;
 using System.Diagnostics;
 using WisdomPetMedicine.Hospital.Api.Commands;
 using WisdomPetMedicine.Hospital.Domain.Entities;
@@ -60,5 +61,33 @@ public class HospitalApplicationService(IPatientAggregateStore patientAggregateS
         var patient = await patientAggregateStore.LoadAsync(PatientId.Create(command.Id));
         patient.AddProcedure(Procedure.Create(command.Procedure));
         await patientAggregateStore.SaveAsync(patient);
+    }
+}
+
+public record PatientAdmissionResult(bool Admitted, string? Reason);
+public class PatientAdmissionWorkflow : Workflow<Guid, PatientAdmissionResult>
+{
+    public override async Task<PatientAdmissionResult> RunAsync(WorkflowContext context, Guid input)
+    {
+        var isRoomAvailable = await context.CallActivityAsync<bool>(nameof(VerifyRoomAvailability), input);
+
+        if (isRoomAvailable)
+        {
+            return new PatientAdmissionResult(true, null);
+        }
+        else
+        {
+            return new PatientAdmissionResult(false, "No room available");
+        }
+    }
+}
+
+public class VerifyRoomAvailability(ILogger<VerifyRoomAvailability> logger) : WorkflowActivity<Guid, bool>
+{
+    public override async Task<bool> RunAsync(WorkflowActivityContext context, Guid input)
+    {
+        logger.LogInformation("Verifying if a room is available...");
+        await Task.Delay(3000);
+        return Random.Shared.Next(1, 10) <= 7;
     }
 }

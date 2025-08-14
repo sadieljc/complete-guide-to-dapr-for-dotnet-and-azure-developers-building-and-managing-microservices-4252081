@@ -1,5 +1,6 @@
 using Dapr.Client;
 using Dapr.Extensions.Configuration;
+using Dapr.Workflow;
 using WisdomPetMedicine.Hospital.Api.ApplicationServices;
 using WisdomPetMedicine.Hospital.Api.Extensions;
 using WisdomPetMedicine.Hospital.Api.Infrastructure;
@@ -16,6 +17,12 @@ builder.Services.AddSingleton<IPatientAggregateStore, PatientAggregateStore>();
 builder.Services.AddScoped<HospitalApplicationService>();
 builder.Services.AddControllers()
                 .AddDapr();
+builder.Services.AddDaprWorkflow(options =>
+{
+    options.RegisterWorkflow<PatientAdmissionWorkflow>();
+    options.RegisterActivity<VerifyRoomAvailability>();
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
