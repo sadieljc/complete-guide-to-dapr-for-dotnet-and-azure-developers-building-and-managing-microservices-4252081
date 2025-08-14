@@ -20,7 +20,7 @@ builder.Services.AddControllers()
 builder.Services.AddDaprWorkflow(options =>
 {
     options.RegisterWorkflow<PatientAdmissionWorkflow>();
-    options.RegisterActivity<VerifyRoomAvailability>();
+    options.RegisterActivity<VerifyRoomAvailabilityActivity>();
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

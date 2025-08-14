@@ -69,7 +69,7 @@ public class PatientAdmissionWorkflow : Workflow<Guid, PatientAdmissionResult>
 {
     public override async Task<PatientAdmissionResult> RunAsync(WorkflowContext context, Guid input)
     {
-        var isRoomAvailable = await context.CallActivityAsync<bool>(nameof(VerifyRoomAvailability), input);
+        var isRoomAvailable = await context.CallActivityAsync<bool>(nameof(VerifyRoomAvailabilityActivity), input);
 
         if (isRoomAvailable)
         {
@@ -82,7 +82,7 @@ public class PatientAdmissionWorkflow : Workflow<Guid, PatientAdmissionResult>
     }
 }
 
-public class VerifyRoomAvailability(ILogger<VerifyRoomAvailability> logger) : WorkflowActivity<Guid, bool>
+public class VerifyRoomAvailabilityActivity(ILogger<VerifyRoomAvailabilityActivity> logger) : WorkflowActivity<Guid, bool>
 {
     public override async Task<bool> RunAsync(WorkflowActivityContext context, Guid input)
     {
