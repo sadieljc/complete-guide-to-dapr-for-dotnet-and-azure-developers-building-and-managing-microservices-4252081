@@ -5,3 +5,6 @@ public record AdmitPatientCommand(Guid Id);
 public record DischargePatientCommand(Guid Id);
 public record SetBloodTypeCommand(Guid Id, string BloodType);
 public record SetWeightCommand(Guid Id, decimal Weight);
+public record ApprovePatientAdmissionCommand(string WorkflowInstanceId,
+                                             bool Approved,
+                                             string DoctorName);

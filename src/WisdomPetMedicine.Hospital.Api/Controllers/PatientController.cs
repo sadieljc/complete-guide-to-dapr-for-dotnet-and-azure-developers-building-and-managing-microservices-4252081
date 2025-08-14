@@ -92,4 +92,19 @@ public class PatientController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost("/approve")]
+    public async Task<IActionResult> Approve(ApprovePatientAdmissionCommand command)
+    {
+        try
+        {
+            await applicationService.HandleAsync(command);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
+    }
 }

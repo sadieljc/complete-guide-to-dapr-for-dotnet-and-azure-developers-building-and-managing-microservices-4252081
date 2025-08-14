@@ -84,9 +84,18 @@ public class HospitalApplicationService(IPatientAggregateStore patientAggregateS
         patient.AddProcedure(Procedure.Create(command.Procedure));
         await patientAggregateStore.SaveAsync(patient);
     }
+
+    public async Task HandleAsync(ApprovePatientAdmissionCommand command)
+    {
+        await daprWorkflowClient.RaiseEventAsync(
+            command.WorkflowInstanceId,
+            "approved",
+            new PatientAdmissionApprovalResult(command.Approved, command.DoctorName));
+    }
 }
 
 public record PatientAdmissionResult(bool Admitted, string? Reason);
+public record PatientAdmissionApprovalResult(bool Approved, string DoctorName);
 public class PatientAdmissionWorkflow : Workflow<Guid, PatientAdmissionResult>
 {
     public override async Task<PatientAdmissionResult> RunAsync(WorkflowContext context, Guid input)
@@ -95,6 +104,19 @@ public class PatientAdmissionWorkflow : Workflow<Guid, PatientAdmissionResult>
 
         if (isRoomAvailable)
         {
+            var logger = context.CreateReplaySafeLogger<PatientAdmissionWorkflow>();
+            logger.LogInformation("Waiting for approval...");
+
+            var approvedResult = await context.WaitForExternalEventAsync<PatientAdmissionApprovalResult>("approved",
+                TimeSpan.FromMinutes(5));
+
+            logger.LogInformation($"Approval received: {approvedResult.Approved} from: {approvedResult.DoctorName}");
+
+            if (!approvedResult.Approved)
+            {
+                return new PatientAdmissionResult(false, $"Rejected by: {approvedResult.DoctorName}");
+            }
+
             var admitted = await context.CallActivityAsync<PatientAdmissionResult>(nameof(AdmitPatientActivity), input);
             return admitted;
         }
