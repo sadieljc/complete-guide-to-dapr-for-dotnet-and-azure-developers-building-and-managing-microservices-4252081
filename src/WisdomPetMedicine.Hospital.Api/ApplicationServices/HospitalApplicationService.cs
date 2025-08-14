@@ -11,12 +11,11 @@ public class HospitalApplicationService(IPatientAggregateStore patientAggregateS
                                         DaprClient daprClient,
                                         ILogger<HospitalApplicationService> logger)
 {
-    private const string WisdomLockStore = "wisdomlockstore";
     public async Task HandleAsync(SetWeightCommand command)
     {
         logger.LogInformation($"Activity Id is: {Activity.Current?.Id}");
         var patient = await patientAggregateStore.LoadAsync(PatientId.Create(command.Id));
-        await using (var patientLock = await daprClient.Lock(WisdomLockStore, 
+        await using (var patientLock = await daprClient.Lock("wisdomlockstore", 
             command.Id.ToString(), Activity.Current?.Id, 60))
         {
             if (!patientLock.Success)
