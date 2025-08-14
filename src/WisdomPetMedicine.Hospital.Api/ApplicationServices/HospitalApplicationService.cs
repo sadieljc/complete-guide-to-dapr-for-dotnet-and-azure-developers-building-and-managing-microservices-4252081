@@ -1,4 +1,5 @@
 ﻿using Dapr.Client;
+using System.Diagnostics;
 using WisdomPetMedicine.Hospital.Api.Commands;
 using WisdomPetMedicine.Hospital.Domain.Entities;
 using WisdomPetMedicine.Hospital.Domain.Repositories;
@@ -6,23 +7,29 @@ using WisdomPetMedicine.Hospital.Domain.ValueObjects;
 
 namespace WisdomPetMedicine.Hospital.Api.ApplicationServices;
 
-public class HospitalApplicationService
+public class HospitalApplicationService(IPatientAggregateStore patientAggregateStore,
+                                        DaprClient daprClient,
+                                        ILogger<HospitalApplicationService> logger)
 {
-    private readonly IPatientAggregateStore patientAggregateStore;
-    private readonly DaprClient daprClient;
-
-    public HospitalApplicationService(IPatientAggregateStore patientAggregateStore,
-                                      DaprClient daprClient)
-    {
-        this.patientAggregateStore = patientAggregateStore;
-        this.daprClient = daprClient;
-    }
-
+    private const string WisdomLockStore = "wisdomlockstore";
     public async Task HandleAsync(SetWeightCommand command)
     {
+        logger.LogInformation($"Activity Id is: {Activity.Current?.Id}");
         var patient = await patientAggregateStore.LoadAsync(PatientId.Create(command.Id));
-        patient.SetWeight(PatientWeight.Create(command.Weight));
-        await patientAggregateStore.SaveAsync(patient);
+        await using (var patientLock = await daprClient.Lock(WisdomLockStore, 
+            command.Id.ToString(), Activity.Current?.Id, 60))
+        {
+            if (!patientLock.Success)
+            {
+                throw new Exception("Busy");
+            }
+
+            logger.LogInformation($"Lock status is: {patientLock.Success}");
+            patient.SetWeight(PatientWeight.Create(command.Weight));
+            await patientAggregateStore.SaveAsync(patient);
+
+            Thread.Sleep(10000);
+        }
     }
 
     public async Task HandleAsync(SetBloodTypeCommand command)
