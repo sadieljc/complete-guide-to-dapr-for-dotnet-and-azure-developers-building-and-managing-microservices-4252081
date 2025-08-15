@@ -4,6 +4,7 @@ metadata:
   name: wisdomazurekeyvault
 spec:
   type: crypto.azure.keyvault
+  version: v1
   metadata:
   - name: vaultName
     value: wisdompetmed

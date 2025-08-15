@@ -4,6 +4,7 @@ metadata:
   name: wisdomconversation
 spec:
   type: conversation.openai
+  version: v1
   metadata:
   - name: key
     secretKeyRef:
