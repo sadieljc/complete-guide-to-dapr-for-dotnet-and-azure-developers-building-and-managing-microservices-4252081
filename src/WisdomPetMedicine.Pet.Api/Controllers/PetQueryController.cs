@@ -12,12 +12,6 @@ public class PetQueryController(IConfiguration configuration,
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        if (Random.Shared.Next(1, 10) <= 3)
-        {
-            logger.LogError("There's something wrong.");
-            return StatusCode(500);
-        }
-
         string query = @"SELECT p.Id, p.Name_Value as Name,
                             p.Breed_Value as Breed,
                             Sex = 
