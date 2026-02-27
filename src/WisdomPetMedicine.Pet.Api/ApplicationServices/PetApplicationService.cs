@@ -35,6 +35,7 @@ public class PetApplicationService
                                                                              c.Color,
                                                                              c.DateOfBirth,
                                                                              c.Species);
+
             await daprClient.PublishEventAsync(PubSubName, "pet-flagged-for-adoption", integrationEvent);
         });
 
@@ -47,6 +48,7 @@ public class PetApplicationService
                                                                              c.Color,
                                                                              c.DateOfBirth,
                                                                              c.Species);
+
             await daprClient.PublishEventAsync(PubSubName, "pet-transferred-to-hospital", integrationEvent);
         });
     }
