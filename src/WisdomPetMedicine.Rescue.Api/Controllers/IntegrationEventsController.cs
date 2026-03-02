@@ -25,6 +25,8 @@ public class IntegrationEventsController : ControllerBase
     [Topic("pubsub", "pet-flagged-for-adoption")]
     public async Task<IActionResult> OnPetFlaggedForAdoption(PetFlaggedForAdoptionIntegrationEvent theEvent)
     {
+        logger?.LogInformation("Entered OnPetFlaggedForAdoption subscriber code...");
+
         using var scope = serviceScopeFactory.CreateScope();
         var repo = scope.ServiceProvider.GetRequiredService<IRescueRepository>();
         var dbContext = scope.ServiceProvider.GetRequiredService<RescueDbContext>();
