@@ -1,0 +1,1 @@
+dapr run --app-id petaggregator --app-port 5004 --dapr-http-port 50004 --components-path ..\..\components  -- dotnet run --urls http://+:5004

@@ -6,11 +6,15 @@ spec:
   type: bindings.azure.storagequeues
   version: v1
   metadata:
-  - name: storageAccount
-    value: "wisdompetmed"
-  - name: storageAccessKey
-    value: "Eb/lT1BiEXpGtuulepMuxKwgCcbLVpk6tnFRgZSoFzIfVEaVpqtLJV4/2Yz2qrjSOiFxm+VVz4JHIj3mbXfvmQ=="
-  - name: queue
-    value: "admittedqueue"
-  - name: ttlInSeconds
-    value: "60"
+    - name: storageAccount
+      value: "wisdompetmed"
+    - name: storageAccessKey
+      secretKeyRef:
+        name: connectionStrings:azurestorage
+        key: connectionStrings:azurestorage
+    - name: queue
+      value: "admittedqueue"
+    - name: ttlInSeconds
+      value: "60"
+auth:
+  secretStore: wisdomsecretstore
